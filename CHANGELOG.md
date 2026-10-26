@@ -1,0 +1,188 @@
+# Changelog
+
+## [1.0.28] - 2026-10-23
+
+### Added
+- `jamdesk pull` (CLI 1.1.227): downloads a project hosted by Jamdesk (no GitHub) as a git repository with full history, or merges new Jamdesk changes into a folder it made. Flags `--project <id-or-slug>`, `--dir <path>` and `--force` (turns a non-empty folder, such as an old read-only copy, into a git copy, keeping its files as changes).
+- Hosted deploy flow: in a pulled folder, `jamdesk deploy` commits changes (`-m` sets the message), refuses `.github/` files, symlinks, files over 25 MB, conflict markers and secret-looking files (unless `--allow-secret-files`) before committing, and publishes up to 100 MB per deploy. Covers the stale case (run `jamdesk pull`, then deploy), conflicts, adding a personal remote, and moving to GitHub.
+
+## [1.0.27] - 2026-10-11
+
+### Added
+- `chat.label` and `chat.icon` docs.json reference. The label replaces "Ask AI" on the chat button, panel header and search shortcut (up to 40 characters, same in every language). The icon is a Font Awesome name, an image URL or a project image path; the default is `sparkles`.
+- `tabsAlignment` docs.json reference: `start` (default), `center` or `end` for the tab row when tabs are in the header. No effect with `tabsPosition: "left"` or in the Pulsar theme.
+- Mermaid click to expand: clicking a diagram opens it full screen on screens 768px and wider, and `noZoom` on the `<Mermaid>` component opts one diagram out. Code fence diagrams always expand. Colors from `style` and `classDef` now match in light and dark mode.
+
+## [1.0.26] - 2026-10-07
+
+### Fixed
+- `seo.titleTemplate`: corrected which pages skip the template. A page with no `title` shows `<name> Documentation` (or `<name>` alone when it already ends in "Docs" or "Documentation"), and a page whose title equals `name` shows that title alone. Also notes that a template with no `%s` fails the build, that `twitter:title` is unchanged too, and that it needs CLI 1.1.220.
+- SVG logo text: logos set to a full URL aren't checked, and how to convert text in Figma and Illustrator.
+
+## [1.0.25] - 2026-10-05
+
+### Added
+- `seo.titleTemplate` docs.json reference, opt-in: a string containing `%s` (max 200 characters) that sets the browser tab and search result title. Every `%s` is replaced with the page title, the default is `%s — <site name>`, and `"%s"` alone leaves out the site name. It does not change `og:title`, and a page with no title or a title equal to the site name shows the site title as-is. Older CLI versions reject the key until upgraded.
+- Social card logo note: the card can't draw text inside an SVG logo, so convert it to outlines before export. The build suggests this in the dashboard, `jamdesk validate` and `jamdesk dev` when the SVG logo the card uses contains text; logos linked from another site aren't checked.
+
+## [1.0.24] - 2026-10-02
+
+### Added
+- `seo.socialCard` docs.json reference, opt-in: without it the generated social card is unchanged. Five keys: `theme` (`light`/`dark`, default `light`), `brandColor` (default `false`; uses `colors.primary`, `colors.light` on a dark card, the theme's accent when `colors` is unset), `accentBar` (default `true`), `siteName` (default `true`), and `customImage` (`background`/`replace`, default `background`). In `replace` mode the winning `og:image` (page frontmatter over `seo.metatags`) is the whole image with no text, and `og:image:width`/`og:image:height` come from the same layer as the image. Older CLI versions reject the key until upgraded.
+- Social card logo note: the card draws SVG, PNG and JPG logos only, and the build converts PNG/JPG logo files to WebP, so the card usually shows the favicon and keeps the site name even with `siteName: false`. SVG logos are the reliable choice.
+
+## [1.0.23] - 2026-10-01
+
+### Added
+- Dusk, a fifth `theme` value for `docs.json`: quiet and flat, one calm surface with 1px borders, Ink blue accent, Inter body, IBM Plex Serif headings, JetBrains Mono code, and high-contrast text. Added to the `theme` field reference and the theme table, and to the `tabsPosition` defaults (Dusk defaults to `"left"`, like `jam`, `nebula`, and `halo`).
+
+## [1.0.22] - 2026-09-22
+
+### Added
+- `localization.autoRedirect` docs.json reference — opt-in, defaults to `false`. Redirects a first-time visitor from the bare site root (never a deep link or an explicit `/fr`-style language URL, never a crawler) to the language matching their `Accept-Language` header; the choice is cookie-persisted for a year and the language switcher always overrides it. Requires two or more `navigation.languages`.
+- `lastUpdatedDate` frontmatter reference (quoted string) overriding the git-commit date used for the "Last updated on" footer line, the sitemap `<lastmod>`, and JSON-LD `dateModified` — noting the footer line itself still requires `metadata.timestamp: true`, while the sitemap and structured data pick up `lastUpdatedDate` either way.
+- Code Fence Options reference (new subsection in components.md) — `title=`, `{n,n-n}` line highlighting, `showLineNumbers`, `startLine=N`, and the new `nocopy` flag, including that `nocopy` applies per tab inside a `CodeGroup`.
+
+## [1.0.21] - 2026-08-20
+
+### Added
+- Spec-generated API pages: a top-level tab with `"openapi": { "source": ..., "generate": true }` builds one page per operation plus its sidebar, grouped by tag (path-segment fallback for untagged specs), slugged `<tab>/<method>-<path>`, with committed `.mdx` winning collisions and a redirect emitted when a spec rename moves a slug. Limits documented: `navigation.tabs` only, default language only, `directory` inert.
+- `search` frontmatter field: `false` withholds a page from site search, AI chat, and MCP while leaving it in navigation, the sitemap, and llms.txt — distinct from `hidden`.
+
+### Fixed
+- Navigation reference claimed a bare `"openapi": "spec.yaml"` on a group auto-generates endpoint pages. It does not, and never did — it is accepted, passes validation, and produces nothing. Two "Combining Patterns" examples used that shape and now list pages instead.
+- `asyncapi` (both the `docs.json` key and the frontmatter field) marked accepted-but-not-rendered; `jamdesk validate` warns on it.
+- `api.mdx.server` documented as first-entry-only — an array is accepted but everything past `[0]` is discarded, and validate now warns.
+
+## [1.0.20] - 2026-08-04
+
+### Added
+- Halo, a fourth `theme` value for `docs.json`: warm sand background with content on a raised card, caramel accent, heavily rounded surfaces, Figtree throughout. Added to the `theme` field reference and the theme table, and to the `tabsPosition` defaults (Halo defaults to `"left"`, like `jam` and `nebula`).
+
+## [1.0.19] - 2026-07-30
+
+### Changed
+- `jamdesk deploy-proxy cloudflare` overwrite guidance: regenerating into an existing directory now requires `--force` (interactive runs ask; `--yes` stops rather than overwrite), and `--yes` never deploys — it writes the files and leaves `npx wrangler deploy` to the user.
+
+## [1.0.18] - 2026-07-29
+
+### Added
+- Custom docs subpath: `hostAtDocs` reference now documents the dashboard-configured subpath (Project Settings → Custom Domain → "Host docs at a subpath" — not a `docs.json` field; defaults to `/docs`, single lowercase segment, some segments reserved, e.g. `api`, `jd`, `wp-admin`, locale codes like `fr`), the rename transition guarantee (old subpath 308-redirects with one level of history, `/docs/*` always keeps serving), and updated `jamdesk deploy-proxy cloudflare --path` guidance — `PROXY_PATHS` needs both the subpath and `/_jd/*`; a stale worker fails closed (new subpath 404s, old one keeps serving) rather than misrouting to the wrong prefix; hand-edit a customized worker's subpath entry instead of regenerating it; and Vercel-proxied domains carry the identical staleness risk and remedy.
+
+## [1.0.17] - 2026-07-20
+
+### Added
+- Add `auth.jwt` (JWT authentication) docs.json reference — per-user docs access via a customer-signed JWT, alongside the existing `auth.password` section.
+
+## [1.0.16] - 2026-07-17
+
+### Changed
+- `Prompt` built-in action labels ("Open in Claude", …) now localize automatically to the page's language (fr, es, de, it, pt, nl, ja, ko, zh variants). Custom-action labels are unchanged — authors localize those per page.
+
+## [1.0.15] - 2026-07-17
+
+### Added
+- `Prompt` gained `perplexity` and `gemini` built-in open-in actions; all built-ins now render inline brand icons (Claude, Cursor, ChatGPT, Perplexity, Gemini).
+
+### Changed
+- The custom URL action example now uses a generic web search instead of Perplexity, which is a built-in action.
+
+## [1.0.14] - 2026-07-15
+
+### Fixed
+- Corrected the `Prompt` reference to distinguish fail-closed Visibility audiences (expression-valued `for={...}` props and audiences obscured by a later spread attribute) from fail-visible cases (missing `for`, shorthand `for`, and invalid literal values).
+
+Mirrors the Jamdesk Prompt source-injection behavior.
+
+## [1.0.13] - 2026-07-15
+
+### Changed
+- Expanding a nested navigation group no longer navigates to its first page — the caret only reveals the pages; navigation happens when a page is clicked. Top-level section titles still navigate to their section's first page.
+
+Mirrors the shared Jamdesk visitor Sidebar behavior.
+
+## [1.0.12] - 2026-07-15
+
+### Changed
+- Top-level navigation groups are permanent sections again: always open, no chevron, clicking the title navigates to the group's first page. Nested named groups keep the accordion behavior introduced in 1.0.11. `expanded: true` now only has a visible effect on nested groups.
+
+Mirrors the shared Jamdesk visitor Sidebar behavior.
+
+## [1.0.11] - 2026-07-15
+
+### Changed
+- Navigation groups now use the same accordion behavior at every named level: top-level and nested groups start closed unless active or configured with `expanded: true`, active ancestors open on initial load and route changes, and opening a closed group navigates to its first page.
+
+Mirrors the shared Jamdesk visitor Sidebar behavior.
+
+## [1.0.10] - 2026-07-15
+
+### Added
+- `Prompt` component reference — reusable AI instructions with an always-available Copy action, built-in Cursor/Claude/ChatGPT destinations, safe custom HTTP(S) actions, exact authored-Markdown handling, and complete Fern- and Mintlify-compatible props.
+
+Aligns with the local `jamdesk@1.1.168` CLI version bump; release is pending.
+
+## [1.0.9] - 2026-06-17
+
+### Added
+- `seo.ai.llmsTxt` docs.json option. Defaults to `true`; set `false` to stop publishing `llms.txt` and `llms-full.txt` for AI crawlers. Independent of search indexing (`seo.metatags.robots` / per-page `noindex`) — a page can be search-indexed while excluded from AI ingestion, or vice versa.
+
+Mirrors `jamdesk@1.1.149`.
+
+## [1.0.8] - 2026-06-14
+
+### Added
+- `EmailSubscribe` component reference — inline newsletter/changelog signup form with native capture for seven providers (`resend`, `mailchimp`, `kit`, `loops`, `beehiiv`, `brevo`, `sendgrid`) plus embed-only `buttondown`/`substack`. Documents all props (`provider`, `title`, `description`, `collapsed`, `username`, `snippet`, `className`), the native-vs-embed split, compact (`collapsed`) mode, and the per-browser returning-subscriber memory.
+- `integrations.newsletter` configuration reference — the `docs.json` block that drives `<EmailSubscribe>` and, with `placement: "changelog"`, auto-mounts a signup form on every changelog page. Documents every field (`provider`, `title`, `description`, `collapsed`, `username`, `snippet`, `height`, `placement`), the backend-only API-key storage, and the dashboard copy fallback.
+
+Mirrors the multi-vendor newsletter feature in `jamdesk` build-service (CLI `jamdesk@1.1.142`).
+
+## [1.0.7] - 2026-06-10
+
+### Added
+- `jamdesk deploy --allow-empty` flag in the CLI command reference. `jamdesk deploy` now refuses to publish when zero `.mdx` content pages are found (snippets don't count) — the build service independently enforces the same guard server-side — and `--allow-empty` is the per-deploy escape hatch for intentional empty publishes.
+
+Mirrors `jamdesk@1.1.137`.
+
+## [1.0.6] - 2026-06-08
+
+### Added
+- `Widget` component reference — drops a live "What's New" trigger into a docs page that opens your changelog (or any docs page) in a modal, the MDX counterpart to the embeddable `<script>` widget. Documents all props (`page`, `label`, `theme`, `trigger`, `width`/`height`, `radius`, `unread`, `unreadColor`, `project`, `className`), the auto-resolved `*.jamdesk.app` origin, and the per-origin unread state. Mirrors `jamdesk` build-service `<Widget>`.
+
+## [1.0.5] - 2026-05-26
+
+### Changed
+- Upstream docs schema (`www.jamdesk.com/docs.json`) corrected its inverted `logo.light` / `logo.dark` and `favicon.light` / `favicon.dark` descriptions — the previous text claimed `light` was shown in dark mode and vice versa, which contradicted both the actual renderer and this plugin's reference. Plugin content was already accurate; no doc changes needed, but bumped to mark alignment with the corrected upstream schema.
+
+## [1.0.4] - 2026-05-26
+
+### Added
+- `background.decoration: "none"` option to disable the jam light-mode gradient.
+- `background.gradient` tuning fields (`color`, `size`, `position`, `opacity`) for parametric jam gradients. Requires `color-mix()` support; older browsers get the static jam gradient.
+- Note that `background.color: { light, dark }` overrides `--color-bg-primary` on any theme.
+
+Mirrors `jamdesk@1.1.117`.
+
+## [1.0.3] - 2026-05-19
+
+### Added
+- `jamdesk dev --no-open` flag in the CLI command reference. `jamdesk dev` now auto-opens the docs URL in the browser while Turbopack compiles (shows the branded loading page, then auto-advances); document the opt-outs: `--no-open` per run, `"open": false` in `~/.jamdeskrc`, or `JAMDESK_NO_OPEN=1` / `CI` in the environment. Mirrors CLI `jamdesk@1.1.104`.
+
+## [1.0.2] - 2026-05-09
+
+### Changed
+- `RequestExample` / `ResponseExample` reference: documented that bare fenced code blocks on `api:` pages render inline (not in the right-side code panel) and that the build emits an `inline_code_on_api_page` warning when wrappers are missing. Added wrong/right MDX examples mirroring the `OPENAPI.md` "Why isn't my code in the right panel?" guidance.
+
+## [1.0.1] - 2026-04-12
+
+### Added
+- Password protection reference in configuration docs (whole-site and specific-pages modes, frontmatter `private: true`, `auth.password` config fields, mode detection rules)
+
+## [1.0.0] - 2026-04-06
+
+### Added
+- Main skill hub with quick reference, CLI commands, writing standards
+- Complete component reference (25+ components with variants)
+- Full docs.json configuration schema reference
+- 8 navigation patterns with decision guide
+- MCP server entry for Jamdesk documentation
